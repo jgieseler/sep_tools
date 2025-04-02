@@ -8,7 +8,7 @@ repos:
   #         "metadata.language_info.version",
   #         "metadata.kernelspec",
   #         "metadata.vscode",
-  #       ]
+  #       ] 
   - repo: https://github.com/mwouts/jupytext
     rev: v1.16.7
     hooks:

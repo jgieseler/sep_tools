@@ -42,7 +42,7 @@ jobs:
     #   uses: codecov/codecov-action@v5
     #   with:
     #     token: ${{ secrets.CODECOV_TOKEN }}
-
+    #
     # - name: Save pytest-mpl report as artifcat
     #   if: always()
     #   uses: actions/upload-artifact@v4
