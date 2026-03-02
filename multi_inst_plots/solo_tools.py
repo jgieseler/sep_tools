@@ -468,6 +468,113 @@ def make_plot(options):
         
     #     i += 1
 
+    if options.radio.value == True:
+        import cdflib
+        from matplotlib.colors import LogNorm
+
+        def load_rpw(files):
+            # files = download_wind_waves_cdf(dataset, startdate, enddate, path=file_path)
+
+            # Read the frequency binning (assumed constant across all data)
+            freq_hz = cdflib.CDF(files[0]).varget("FREQUENCY")
+
+            # # If freq is 2D but each row is identical, take freq_raw[0,:]
+            # if freq_hz.ndim == 2:
+            #     freq_hz = freq_hz[0, :]
+            
+            psd_sfu = np.empty(shape=(0,len(freq_hz))) 
+            time_dt = np.array([], dtype="datetime64")
+
+            # append data 
+            for file in files:
+                try:
+                    cdf = cdflib.CDF(file)
+
+                    # PSD shape (nTime, nFreq)
+                    psd_raw = cdf.varget("PSD_SFU")
+                    # Time
+                    time_ns = cdf.varget("Epoch")  # shape (nTime,)
+
+                    time_dt = np.append(time_dt, cdflib.epochs.CDFepoch.to_datetime(time_ns))
+
+                    psd_sfu = np.append(psd_sfu, psd_raw, axis=0)
+                except ValueError:
+                    pass
+
+            # # Some files use a fill value ~ -9.9999998e+30
+            # fill_val = cdf.varattsget("FREQUENCY")['FILLVAL']
+            # valid_mask = (freq_hz > 0) & (freq_hz != fill_val) 
+            # freq_hz = freq_hz[valid_mask]
+            # psd_v2hz = psd_v2hz[:, valid_mask]
+
+            # Convert frequency to MHz
+            freq_mhz = freq_hz / 1e6
+
+            # Sort time
+            # if not sorted(time_dt):
+            #     idx_t = np.argsort(time_dt)
+            #     time_dt = time_dt[idx_t]
+            #     psd_v2hz  = psd_v2hz[idx_t, :]
+
+            # # Remove duplicate times
+            # t_unique, t_uidx = np.unique(time_dt, return_index=True)
+            # if len(t_unique) < len(time_dt):
+            #     time_dt = t_unique
+            #     psd_v2hz  = psd_v2hz[t_uidx, :]
+
+            # # Sort freq
+            # if not sorted(freq_mhz):
+            #     idx_f = np.argsort(freq_mhz)
+            #     freq_mhz = freq_mhz[idx_f]
+            #     psd_v2hz  = psd_v2hz[:, idx_f]
+
+            # # Remove duplicate freqs
+            # f_unique, f_uidx = np.unique(freq_mhz, return_index=True)
+            # if len(f_unique) < len(freq_mhz):
+            #     freq_mhz = f_unique
+            #     psd_v2hz  = psd_v2hz[:, f_uidx]
+
+            # # remove bar artifacts caused by non-NaN values before time jumps
+            # # for each time step except the last one:
+            # for i in range(len(time_dt)-1):
+            #     # check if time increases by more than 5 min:
+            #     if time_dt[i+1] - time_dt[i] > np.timedelta64(5, "m"):
+            #         psd_v2hz[i,:] = np.nan
+
+            data = pd.DataFrame(psd_sfu, index=time_dt, columns=freq_mhz)
+
+            return data
+
+        files_hfr = ['solo_l3_rpw-hfr-surv-flux_20240310_v02.cdf']
+        files_tnr = ['solo_l3_rpw-tnr-surv-flux_20240310_v02.cdf']
+
+        hfr_data = load_rpw(files_hfr)
+        tnr_data = load_rpw(files_tnr)
+
+        # font_ylabel = 12
+        # panels = 1
+        # fig, axs = plt.subplots(nrows=panels, ncols=1, sharex=True, figsize=(10, 2*panels))
+
+        # cmap='jet'
+        vmin, vmax = 50, 2e6
+        log_norm = LogNorm(vmin=vmin, vmax=vmax)
+
+        time_hfr_2D, freq_hfr_2D = np.meshgrid(hfr_data.index, hfr_data.columns, indexing='ij')
+        mesh = axs[i].pcolormesh(time_hfr_2D, freq_hfr_2D, hfr_data.iloc[:-1, :-1], shading='flat', cmap=cmap, norm=log_norm)
+
+        time_tnr_2D, freq_tnr_2D = np.meshgrid(tnr_data.index, tnr_data.columns, indexing='ij')
+        mesh = axs[i].pcolormesh(time_tnr_2D, freq_tnr_2D, tnr_data.iloc[:-1, :-1], shading='flat', cmap=cmap, norm=log_norm)
+
+        if mesh is not None:
+            # Add inset axes for colorbar
+            axins = inset_axes(axs[i], width="100%", height="100%", loc="center", bbox_to_anchor=(1.01, 0, 0.03, 1), bbox_transform=axs[i].transAxes, borderpad=0.2)
+            cbar = fig.colorbar(mesh, cax=axins, orientation="vertical")
+            cbar.set_label(r"Intensity [sfu]", rotation=90, labelpad=10, fontsize=font_ylabel)
+
+        axs[i].set_yscale('log')
+        axs[i].set_ylabel("Frequency [MHz]", fontsize=font_ylabel)
+
+        i += 1
 
 
     ### Electrons
