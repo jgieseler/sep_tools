@@ -502,10 +502,10 @@ def make_plot(options):
                     pass
 
             # # Some files use a fill value ~ -9.9999998e+30
-            # fill_val = cdf.varattsget("FREQUENCY")['FILLVAL']
-            # valid_mask = (freq_hz > 0) & (freq_hz != fill_val) 
-            # freq_hz = freq_hz[valid_mask]
-            # psd_v2hz = psd_v2hz[:, valid_mask]
+            fill_val = cdf.varattsget("FREQUENCY")['FILLVAL']
+            valid_mask = (freq_hz > 0) & (freq_hz != fill_val) 
+            freq_hz = freq_hz[valid_mask]
+            psd_sfu = psd_sfu[:, valid_mask]
 
             # Convert frequency to MHz
             freq_mhz = freq_hz / 1e6
