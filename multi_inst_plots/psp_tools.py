@@ -573,6 +573,14 @@ def make_plot(options):
     
     i = 0
 
+    if options.stix.value == True:
+        plot_solo_stix(df_stix, axs[i], options.stix_ltc.value, legends_inside, font_ylabel)
+        i += 1 
+
+    if options.goes.value:
+        plot_goes_xrs(options=options, data=df_goes, sat=goes_sat, ax=axs[i], font_legend=font_legend)
+        i += 1
+
     if options.radio.value == True:
         vmin, vmax = 500, 1e7
         log_norm = LogNorm(vmin=vmin, vmax=vmax)
@@ -596,18 +604,9 @@ def make_plot(options):
         axs[i].set_yscale('log')
         axs[i].set_ylabel("Frequency [MHz]", fontsize=font_ylabel)
         
-        
-        i += 1
-        
     
-    if options.stix.value == True:
-        plot_solo_stix(df_stix, axs[i], options.stix_ltc.value, legends_inside, font_ylabel)
-        i += 1 
+        i += 1
 
-    if options.goes.value:
-        plot_goes_xrs(options=options, data=df_goes, sat=goes_sat, ax=axs[i], font_legend=font_legend)
-        i += 1
-    
     
     color_offset = 4 
     

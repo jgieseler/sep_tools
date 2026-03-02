@@ -433,6 +433,15 @@ def make_plot(options):
 
     i = 0
 
+    ### STIX
+    if options.stix.value:
+        plot_solo_stix(df_stix, axs[i], options.stix_ltc.value, legends_inside, font_ylabel)
+        i += 1 
+
+    if options.goes.value:
+        plot_goes_xrs(options=options, data=df_goes, sat=goes_sat, ax=axs[i], font_legend=font_legend)
+        i += 1
+
     # # ### Radio
 
     # if plot_radio:
@@ -459,14 +468,7 @@ def make_plot(options):
         
     #     i += 1
 
-    ### STIX
-    if options.stix.value:
-        plot_solo_stix(df_stix, axs[i], options.stix_ltc.value, legends_inside, font_ylabel)
-        i += 1 
 
-    if options.goes.value:
-        plot_goes_xrs(options=options, data=df_goes, sat=goes_sat, ax=axs[i], font_legend=font_legend)
-        i += 1
 
     ### Electrons
     ch_key = 'Electron_Bins_Text'

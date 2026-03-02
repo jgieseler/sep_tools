@@ -380,7 +380,7 @@ def make_fig_axs(options):
     panel_ratios = list(np.zeros(panels)+1)
 
     if plot_radio:
-        panel_ratios[0] = 2
+        panel_ratios[0 + 1*plot_stix + 1*plot_goes] = 2
     if plot_electrons and plot_protons:
         panel_ratios[0 + 1*plot_radio + 1*plot_stix + 1*plot_goes] = 2
         panel_ratios[1 + 1*plot_radio + 1*plot_stix + 1*plot_goes] = 2
